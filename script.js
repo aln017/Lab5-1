@@ -2,15 +2,23 @@
 
 const img = new Image(); // used to load image from <input> and draw to canvas
 
+// access canvas
 const canvas = document.getElementById("user-image");
 const ctx = canvas.getContext("2d");
+
+// access clear and read text buttons 
 const clr = document.querySelector("button[type=reset]");
 const readtxt = document.querySelector("button[type=button]");
+
+// access text input
 const textT = document.getElementById("text-top");
 const textB = document.getElementById("text-bottom");
+
+// access submit button
 const sub = document.querySelector("button[type=submit]");
 let file;
 
+// access volume and voice
 const speech = window.speechSynthesis;
 const volume = document.querySelector("input[type=range]");
 const voice = document.getElementById("voice-selection");
@@ -20,7 +28,7 @@ var voices = [];
 // load image into img object
 const input = document.getElementById("image-input");
 
-
+// populate list with voices
 function populateList() {
 
   voices = speech.getVoices();
@@ -45,6 +53,7 @@ if (speechSynthesis.onvoiceschanged !== undefined) {
   speechSynthesis.onvoiceschanged = populateList;
 }
 
+// loads image into img 
 input.addEventListener("change", function() {
   file = this.files[0];
   const url = URL.createObjectURL(file);
@@ -56,42 +65,49 @@ input.addEventListener("change", function() {
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener("load", function() {
 
+  // clears and fills canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   var obj = getDimmensions(400, 400, img.width, img.height);
   ctx.drawImage(img, obj.startX, obj.startY, obj.width, obj.height);
 
+  // toggles buttons
   clr.disabled = false;
   readtxt.disabled = false;
   voice.disabled = false;
 });
 
+// clears canvas
 clr.addEventListener('click', function() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // toggle buttons
   clr.disabled = true;
   readtxt.disabled = true;
   sub.disabled = false;
 
+  // resets values
   textT.value = "";
   textB.value = "";
-
   input.value = '';
 
 });
 
+// draw text after submitting
 const form = document.getElementById("generate-meme");
 form.addEventListener("submit", function() {
   event.preventDefault();
   ctx.font = "40px Impact";
   ctx.textAlign = "center";
 
+  // toggle buttons
   sub.disabled = true;
   clr.disabled = false;
   readtxt.disabled = false;
 
+  // text features
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 5;
   ctx.strokeText(textT.value, canvas.width/2 , 50);
@@ -101,6 +117,7 @@ form.addEventListener("submit", function() {
   ctx.fillText(textB.value, canvas.width/2 , canvas.height-20);
 });
 
+// reads text with speech synthesis
 readtxt.addEventListener("click", function() {
   let utt1 = new SpeechSynthesisUtterance(textT.value);
   let utt2 = new SpeechSynthesisUtterance(textB.value);
@@ -112,6 +129,7 @@ readtxt.addEventListener("click", function() {
   speech.speak(utt2);
 });
 
+// finds correct voice from selected 
 voice.addEventListener('change', function() {
   selectedVoice = voice.selectedOptions[0].getAttribute('data-name');
   for(let i = 0; i < voices.length ; i++) {
@@ -123,8 +141,12 @@ voice.addEventListener('change', function() {
   const test = 0;
 });
 
+
+// adjusts volume slider
 volume.addEventListener("input", function() {
   const vol = document.getElementById("volume-group").getElementsByTagName('img')[0];
+
+  // conditions to adjust volume picture
   if (volume.value >= 67 && volume.value <= 100) {
     vol.src = "volume-level-3.svg";
     vol.alt = "Volume Level 3";
